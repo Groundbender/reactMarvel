@@ -2,65 +2,54 @@ import { Component } from "react";
 import "./randomChar.scss";
 import mjolnir from "../../resources/img/mjolnir.png";
 import MarvelService from "../../services/MarvelService";
-
+import Spinner from "../spinner/spinner";
+import ErrorMessage from "../ErrorMessage/ErrorMessage";
 class RandomChar extends Component {
   constructor(props) {
     super(props);
     this.updateChar();
   }
 
-  _DESCRIPTION_NORMAL_LENGTH = 203;
-
   state = {
     char: {},
+    loading: true,
+    error: false,
   };
 
   marvelService = new MarvelService();
 
   onCharLoaded = (char) => {
-    this.setState({ char });
+    this.setState({ char, loading: false });
   };
+
+  onError = () => {
+    this.setState({
+      loading: false,
+      error: true,
+    });
+  };
+
   updateChar = () => {
     const id = Math.floor(Math.random() * (1011400 - 1011000) + 1011000);
 
-    this.marvelService.getCharacter(id).then(this.onCharLoaded);
+    this.marvelService
+      .getCharacter(id)
+      .then(this.onCharLoaded)
+      .catch(this.onError);
   };
 
   render() {
-    const {
-      char: { name, description, thumbnail, homepage, wiki },
-    } = this.state;
+    const { char, loading, error } = this.state;
 
-    const validDescription = description
-      ? description
-      : "Description about this character is not found!";
-    const validAndSlicedDescription =
-      validDescription &&
-      validDescription.length > this._DESCRIPTION_NORMAL_LENGTH
-        ? validDescription.slice(0, this._DESCRIPTION_NORMAL_LENGTH) + "..."
-        : validDescription;
+    const errorMessage = error ? <ErrorMessage /> : null;
+    const spinner = loading ? <Spinner /> : null;
+    const content = !(loading || error) ? <View char={char} /> : null;
 
     return (
       <div className="randomchar">
-        <div className="randomchar__block">
-          <img
-            src={thumbnail}
-            alt="Random character"
-            className="randomchar__img"
-          />
-          <div className="randomchar__info">
-            <p className="randomchar__name">{name}</p>
-            <p className="randomchar__descr">{validAndSlicedDescription}</p>
-            <div className="randomchar__btns">
-              <a href={homepage} className="button button__main">
-                <div className="inner">homepage</div>
-              </a>
-              <a href={wiki} className="button button__secondary">
-                <div className="inner">Wiki</div>
-              </a>
-            </div>
-          </div>
-        </div>
+        {errorMessage}
+        {spinner}
+        {content}
         <div className="randomchar__static">
           <p className="randomchar__title">
             Random character for today!
@@ -77,5 +66,37 @@ class RandomChar extends Component {
     );
   }
 }
+
+const View = ({ char }) => {
+  const { name, description, thumbnail, homepage, wiki } = char;
+
+  const DESCRIPTION_NORMAL_LENGTH = 203;
+
+  const validDescription = description
+    ? description
+    : "Description about this character is not found!";
+  const validAndSlicedDescription =
+    validDescription && validDescription.length > DESCRIPTION_NORMAL_LENGTH
+      ? validDescription.slice(0, DESCRIPTION_NORMAL_LENGTH) + "..."
+      : validDescription;
+
+  return (
+    <div className="randomchar__block">
+      <img src={thumbnail} alt="Random character" className="randomchar__img" />
+      <div className="randomchar__info">
+        <p className="randomchar__name">{name}</p>
+        <p className="randomchar__descr">{validAndSlicedDescription}</p>
+        <div className="randomchar__btns">
+          <a href={homepage} className="button button__main">
+            <div className="inner">homepage</div>
+          </a>
+          <a href={wiki} className="button button__secondary">
+            <div className="inner">Wiki</div>
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default RandomChar;
