@@ -1,6 +1,5 @@
 import { Component } from "react";
 import "./charList.scss";
-import abyss from "../../resources/img/abyss.jpg";
 import MarvelService from "../../services/MarvelService";
 import Spinner from "../spinner/spinner";
 import ErrorMessage from "../ErrorMessage/ErrorMessage";
@@ -9,19 +8,48 @@ class CharList extends Component {
     charList: [],
     loading: true,
     error: false,
+    newCharsLoading: false,
+    offset: 210,
+    charLimit: false,
   };
 
   marvelService = new MarvelService();
 
   componentDidMount() {
-    this.marvelService
-      .getAllCharacters()
-      .then(this.onCharListLoaded)
-      .catch(this.onError);
+    // this.marvelService
+    //   .getAllCharacters()
+    //   .then(this.onCharListLoaded)
+    //   .catch(this.onError);
+    this.onRequest();
   }
 
-  onCharListLoaded = (charList) => {
-    this.setState({ charList, loading: false });
+  onRequest = (offset) => {
+    this.onCharListLoading();
+    this.marvelService
+      .getAllCharacters(offset)
+      .then(this.onCharListLoaded)
+      .catch(this.onError);
+  };
+
+  onCharListLoading = () => {
+    this.setState({
+      newCharsLoading: true,
+    });
+  };
+
+  onCharListLoaded = (newCharList) => {
+    let ended = false;
+    if (newCharList.length < 9) {
+      ended = true;
+    }
+
+    this.setState(({ offset, charList }) => ({
+      charList: [...charList, ...newCharList],
+      loading: false,
+      newCharsLoading: false,
+      offset: offset + 9,
+      charLimit: ended,
+    }));
     console.log(this.state);
   };
 
@@ -57,7 +85,8 @@ class CharList extends Component {
   }
 
   render() {
-    const { charList, loading, error } = this.state;
+    const { charList, loading, error, newCharsLoading, offset, charLimit } =
+      this.state;
 
     const cards = this.renderItems(charList);
 
@@ -78,7 +107,12 @@ class CharList extends Component {
           {spinner}
           {content}
         </ul>
-        <button className="button button__main button__long">
+        <button
+          disabled={newCharsLoading}
+          onClick={() => this.onRequest(offset)}
+          className="button button__main button__long"
+          style={{ display: charLimit ? "none" : "block" }}
+        >
           <div className="inner">load more</div>
         </button>
       </div>
