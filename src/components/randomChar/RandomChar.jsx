@@ -92,7 +92,7 @@ const View = ({ char }) => {
   // thumbnail = thumbnail.endsWith("not_available.jpg") ?
 
   const contain = {
-    objectFit: "contain",
+    objectFit: "unset",
   };
 
   return (
