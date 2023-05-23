@@ -41,7 +41,12 @@ class CharList extends Component {
       }
 
       return (
-        <li key={id} className="char__item">
+        <li
+          key={id}
+          // записывает в state (app.jsx) id нашей карточки, чтобы передать в appInfo этот id
+          onClick={() => this.props.onCharSelected(id)}
+          className="char__item"
+        >
           <img src={thumbnail} alt="abyss" style={imgStyle} />
           <div className="char__name">{name}</div>
         </li>
