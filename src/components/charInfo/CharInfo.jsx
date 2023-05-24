@@ -1,4 +1,5 @@
 import { Component, Fragment } from "react";
+import PropTypes from "prop-types";
 import Spinner from "../spinner/spinner";
 import ErrorMessage from "../ErrorMessage/ErrorMessage";
 import Skeleton from "../skeleton/Skeleton";
@@ -114,6 +115,10 @@ const View = ({ char }) => {
       </ul>
     </Fragment>
   );
+};
+
+CharInfo.propTypes = {
+  charId: PropTypes.number,
 };
 
 export default CharInfo;

@@ -1,5 +1,6 @@
 import { Component } from "react";
 import "./charList.scss";
+import PropTypes from "prop-types";
 import MarvelService from "../../services/MarvelService";
 import Spinner from "../spinner/spinner";
 import ErrorMessage from "../ErrorMessage/ErrorMessage";
@@ -16,10 +17,6 @@ class CharList extends Component {
   marvelService = new MarvelService();
 
   componentDidMount() {
-    // this.marvelService
-    //   .getAllCharacters()
-    //   .then(this.onCharListLoaded)
-    //   .catch(this.onError);
     this.onRequest();
   }
 
@@ -50,7 +47,6 @@ class CharList extends Component {
       offset: offset + 9,
       charLimit: ended,
     }));
-    console.log(this.state);
   };
 
   onError = () => {
@@ -119,5 +115,9 @@ class CharList extends Component {
     );
   }
 }
+
+CharList.propTypes = {
+  onCharSelected: PropTypes.func.isRequired,
+};
 
 export default CharList;
