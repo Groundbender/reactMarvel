@@ -56,8 +56,22 @@ class CharList extends Component {
     });
   };
 
+  itemRefs = [];
+
+  setRef = (ref) => {
+    this.itemRefs.push(ref);
+  };
+
+  focusOnItem = (id) => {
+    this.itemRefs.forEach((item) =>
+      item.classList.remove("char__item_selected")
+    );
+    this.itemRefs[id].classList.add("char__item_selected");
+    this.itemRefs[id].focus();
+  };
+
   renderItems(arr) {
-    const renderedCards = arr.map(({ name, thumbnail, id }) => {
+    const renderedCards = arr.map(({ name, thumbnail, id }, index) => {
       let imgStyle = { objectFit: "cover" };
 
       if (thumbnail.endsWith("not_available.jpg")) {
@@ -68,10 +82,15 @@ class CharList extends Component {
         <li
           key={id}
           // записывает в state (app.jsx) id нашей карточки, чтобы передать в appInfo этот id
-          onClick={() => this.props.onCharSelected(id)}
+          tabIndex={0}
+          ref={this.setRef}
+          onClick={() => {
+            this.props.onCharSelected(id);
+            this.focusOnItem(index);
+          }}
           className="char__item"
         >
-          <img src={thumbnail} alt="abyss" style={imgStyle} />
+          <img src={thumbnail} alt="charImage" style={imgStyle} />
           <div className="char__name">{name}</div>
         </li>
       );
