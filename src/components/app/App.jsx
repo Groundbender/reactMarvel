@@ -6,6 +6,7 @@ import CharList from "../charList/CharList";
 import CharInfo from "../charInfo/CharInfo";
 import ErrorBoundry from "../ErrorBoundry/ErrorBoundry";
 import decoration from "../../resources/img/vision.png";
+import ComicsList from "../comicsList/ComicsList";
 
 const App = () => {
   //   state = {
@@ -26,7 +27,7 @@ const App = () => {
     <div className="app">
       <AppHeader />
       <main>
-        <ErrorBoundry>
+        {/* <ErrorBoundry>
           <RandomChar />
         </ErrorBoundry>
         <div className="char__content">
@@ -38,7 +39,8 @@ const App = () => {
             <CharInfo charId={selectedChar} />
           </ErrorBoundry>
         </div>
-        <img className="bg-decoration" src={decoration} alt="vision" />
+        <img className="bg-decoration" src={decoration} alt="vision" /> */}
+        <ComicsList />
       </main>
     </div>
   );
