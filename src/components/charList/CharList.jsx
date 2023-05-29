@@ -1,34 +1,35 @@
 import { useState, useEffect, useRef } from "react";
 import "./charList.scss";
 import PropTypes from "prop-types";
-import MarvelService from "../../services/MarvelService";
+import useMarvelService from "../../services/MarvelService";
 import Spinner from "../spinner/spinner";
 import ErrorMessage from "../ErrorMessage/ErrorMessage";
 const CharList = (props) => {
   const [charList, setCharlist] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  // const [loading, setLoading] = useState(true);
+  // const [error, setError] = useState(false);
   const [newCharsLoading, setNewCharsLoading] = useState(false);
   const [offset, setOffset] = useState(210);
   const [charLimit, setCharLimit] = useState(false);
 
+  const { loading, error, getAllCharacters } = useMarvelService();
+
   useEffect(() => {
-    onRequest();
+    // первичная загрузка куда передаем initial = true
+    onRequest(offset, true);
   }, []);
 
-  const marvelService = new MarvelService();
-
-  const onRequest = (offset) => {
-    onCharListLoading();
-    marvelService
-      .getAllCharacters(offset)
-      .then(onCharListLoaded)
-      .catch(onError);
+  const onRequest = (offset, initial) => {
+    // параметр initial отвечает за первичную загрузку (в useEffect) и если он передан, тогда состояние загрузки новых персонажей ставим в false
+    // (при клике параметр initial не передаем и состояние загрузки будет true )
+    initial ? setNewCharsLoading(false) : setNewCharsLoading(true);
+    getAllCharacters(offset).then(onCharListLoaded);
   };
 
-  const onCharListLoading = () => {
-    setNewCharsLoading(true);
-  };
+  // const onCharListLoading = () => {
+  //   setNewCharsLoading(true);
+
+  // };
 
   const onCharListLoaded = (newCharList) => {
     let ended = false;
@@ -37,16 +38,15 @@ const CharList = (props) => {
     }
 
     setCharlist((charList) => [...charList, ...newCharList]);
-    setLoading(false);
     setNewCharsLoading((newCharsLoading) => false);
     setOffset((offset) => offset + 9);
     setCharLimit((charLimit) => ended);
   };
 
-  const onError = () => {
-    setLoading(false);
-    setError(true);
-  };
+  // const onError = () => {
+  //   setLoading(false);
+  //   setError(true);
+  // };
 
   const itemRefs = useRef([]);
 
@@ -59,10 +59,10 @@ const CharList = (props) => {
   };
 
   function renderItems(arr) {
-    const renderedCards = arr.map(({ name, thumbnail, id }, index) => {
+    const items = arr.map(({ name, thumbnail, id }, index) => {
       let imgStyle = { objectFit: "cover" };
 
-      if (thumbnail.endsWith("not_available.jpg")) {
+      if (String(thumbnail).endsWith("not_available.jpg")) {
         imgStyle = { objectFit: "unset" };
       }
 
@@ -84,28 +84,24 @@ const CharList = (props) => {
       );
     });
 
-    return renderedCards;
+    return <ul className="char__grid">{items}</ul>;
   }
 
   const cards = renderItems(charList);
 
-  const centeredLoader = {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  };
-
   const errorMessage = error ? <ErrorMessage /> : null;
-  const spinner = loading ? <Spinner /> : null;
-  const content = !(loading || error) ? cards : null;
+  // переделал условие
+  // если загрузка и !загрузка новых персонажей, тогда выводим spinner
+  const spinner = loading && !newCharsLoading ? <Spinner /> : null;
+  // убрали это условие, чтобы при !загрузке и !ошибке (следовательно при загрузке новых персонажей их состояние false) не было пустых карточек
+  // const content = !(loading || error) ? cards : null;
 
   return (
     <div className="char__list">
-      <ul className="char__grid" style={loading ? centeredLoader : null}>
-        {errorMessage}
-        {spinner}
-        {content}
-      </ul>
+      {errorMessage}
+      {spinner}
+      {cards}
+
       <button
         disabled={newCharsLoading}
         onClick={() => onRequest(offset)}

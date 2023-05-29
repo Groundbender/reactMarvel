@@ -1,39 +1,24 @@
-class MarvelService {
-  _apiBase = `https://gateway.marvel.com:443/v1/public/`;
-  _apiKey = `apikey=59bcfea3899a81ccb469d830d34db77e`;
+import { useHttp } from "../hooks/http.hook";
 
-  _baseOffset = 210;
+const useMarvelService = () => {
+  const { loading, request, error, clearError } = useHttp();
 
-  getResource = async (url) => {
-    let res = await fetch(url);
+  const _apiBase = `https://gateway.marvel.com:443/v1/public/`;
+  const _apiKey = `apikey=59bcfea3899a81ccb469d830d34db77e`;
 
-    if (!res.ok) {
-      throw new Error(`Could not fetch ${url}, status ${res.status}`);
-    }
+  const _baseOffset = 210;
 
-    return await res.json();
-  };
+  // getResource = async (url) => {
+  //   let res = await fetch(url);
 
-  getAllCharacters = async (offset = this._baseOffset) => {
-    const res = await this.getResource(
-      `${this._apiBase}characters?limit=9&offset=${offset}&${this._apiKey}`
-    );
-    // делаем то же, что и для отдельного персонажа, но для каждого персонажа с помощбю map и формируем новый массив
-    return res.data.results.map(this._transformCharacter);
-  };
+  //   if (!res.ok) {
+  //     throw new Error(`Could not fetch ${url}, status ${res.status}`);
+  //   }
 
-  getCharacter = async (id) => {
-    // получаем данные
-    const res = await this.getResource(
-      `${this._apiBase}characters/${id}?${this._apiKey}`
-    );
+  //   return await res.json();
+  // };
 
-    // возвращаем только нужные данные в собранном объекте через ф-ию    _transformCharacter
-    return this._transformCharacter(res.data.results[0]);
-  };
-
-  // char = res.data.results[0]
-  _transformCharacter = (char) => {
+  const _transformCharacter = (char) => {
     return {
       id: char.id,
       name: char.name,
@@ -44,6 +29,26 @@ class MarvelService {
       comics: char.comics.items,
     };
   };
-}
 
-export default MarvelService;
+  const getAllCharacters = async (offset = _baseOffset) => {
+    const res = await request(
+      `${_apiBase}characters?limit=9&offset=${offset}&${_apiKey}`
+    );
+    // делаем то же, что и для отдельного персонажа, но для каждого персонажа с помощбю map и формируем новый массив
+    return res.data.results.map(_transformCharacter);
+  };
+
+  const getCharacter = async (id) => {
+    // получаем данные
+    const res = await request(`${_apiBase}characters/${id}?${_apiKey}`);
+
+    // возвращаем только нужные данные в собранном объекте через ф-ию    _transformCharacter
+    return _transformCharacter(res.data.results[0]);
+  };
+
+  // char = res.data.results[0]
+
+  return { loading, error, clearError, getAllCharacters, getCharacter };
+};
+
+export default useMarvelService;
