@@ -6,9 +6,9 @@ import Spinner from "../spinner/spinner";
 import ErrorMessage from "../ErrorMessage/ErrorMessage";
 const CharList = (props) => {
   const [charList, setCharlist] = useState([]);
-  // const [loading, setLoading] = useState(true);
-  // const [error, setError] = useState(false);
+
   const [newCharsLoading, setNewCharsLoading] = useState(false);
+
   const [offset, setOffset] = useState(210);
   const [charLimit, setCharLimit] = useState(false);
 
@@ -16,6 +16,7 @@ const CharList = (props) => {
 
   useEffect(() => {
     // первичная загрузка куда передаем initial = true
+
     onRequest(offset, true);
   }, []);
 
@@ -23,6 +24,7 @@ const CharList = (props) => {
     // параметр initial отвечает за первичную загрузку (в useEffect) и если он передан, тогда состояние загрузки новых персонажей ставим в false
     // (при клике параметр initial не передаем и состояние загрузки будет true )
     initial ? setNewCharsLoading(false) : setNewCharsLoading(true);
+
     getAllCharacters(offset).then(onCharListLoaded);
   };
 
@@ -38,7 +40,7 @@ const CharList = (props) => {
     }
 
     setCharlist((charList) => [...charList, ...newCharList]);
-    setNewCharsLoading((newCharsLoading) => false);
+    setNewCharsLoading(false);
     setOffset((offset) => offset + 9);
     setCharLimit((charLimit) => ended);
   };
@@ -68,6 +70,7 @@ const CharList = (props) => {
 
       return (
         <li
+          className="char__item"
           key={id}
           // записывает в state (app.jsx) id нашей карточки, чтобы передать в appInfo этот id
           tabIndex={0}
@@ -76,7 +79,12 @@ const CharList = (props) => {
             props.onCharSelected(id);
             focusOnItem(index);
           }}
-          className="char__item"
+          onKeyPress={(e) => {
+            if (e.key === " " || e.key === "Enter") {
+              props.onCharSelected(id);
+              focusOnItem(index);
+            }
+          }}
         >
           <img src={thumbnail} alt="charImage" style={imgStyle} />
           <div className="char__name">{name}</div>
