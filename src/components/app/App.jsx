@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
 import AppHeader from "../appHeader/AppHeader";
-import { MainPage, ComicsPage } from "../pages";
+import { MainPage, ComicsPage, Page404, SingleComicPage } from "../pages";
 
 const App = () => {
   //   state = {
@@ -18,6 +18,8 @@ const App = () => {
   //   setSelectedChar(id);
   // };
 
+  // comicId - название мы придумываем сами (это название будет ключом нашего объекта, которое мы получаем с помощью useParams, {comicId: id})
+
   return (
     <Router>
       <div className="app">
@@ -27,6 +29,8 @@ const App = () => {
             <Route path="/" element={<MainPage />} />
 
             <Route path="/comics" element={<ComicsPage />} />
+            <Route path="/comics/:comicId" element={<SingleComicPage />} />
+            <Route path="*" element={<Page404 />} />
           </Routes>
         </main>
       </div>
