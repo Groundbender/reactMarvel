@@ -4,6 +4,8 @@ import PropTypes from "prop-types";
 import useMarvelService from "../../services/MarvelService";
 import Spinner from "../spinner/spinner";
 import ErrorMessage from "../ErrorMessage/ErrorMessage";
+
+import { CSSTransition, TransitionGroup } from "react-transition-group";
 const CharList = (props) => {
   const [charList, setCharlist] = useState([]);
 
@@ -69,30 +71,35 @@ const CharList = (props) => {
       }
 
       return (
-        <li
-          className="char__item"
-          key={id}
-          // записывает в state (app.jsx) id нашей карточки, чтобы передать в appInfo этот id
-          tabIndex={0}
-          ref={(el) => (itemRefs.current[index] = el)}
-          onClick={() => {
-            props.onCharSelected(id);
-            focusOnItem(index);
-          }}
-          onKeyPress={(e) => {
-            if (e.key === " " || e.key === "Enter") {
+        <CSSTransition classNames="char__item" timeout={500} key={id}>
+          <li
+            className="char__item"
+            // записывает в state (app.jsx) id нашей карточки, чтобы передать в appInfo этот id
+            tabIndex={0}
+            ref={(el) => (itemRefs.current[index] = el)}
+            onClick={() => {
               props.onCharSelected(id);
               focusOnItem(index);
-            }
-          }}
-        >
-          <img src={thumbnail} alt="charImage" style={imgStyle} />
-          <div className="char__name">{name}</div>
-        </li>
+            }}
+            onKeyPress={(e) => {
+              if (e.key === " " || e.key === "Enter") {
+                props.onCharSelected(id);
+                focusOnItem(index);
+              }
+            }}
+          >
+            <img src={thumbnail} alt="charImage" style={imgStyle} />
+            <div className="char__name">{name}</div>
+          </li>
+        </CSSTransition>
       );
     });
 
-    return <ul className="char__grid">{items}</ul>;
+    return (
+      <ul className="char__grid">
+        <TransitionGroup component={null}>{items}</TransitionGroup>
+      </ul>
+    );
   }
 
   const cards = renderItems(charList);
