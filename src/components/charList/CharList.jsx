@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import "./charList.scss";
 import PropTypes from "prop-types";
 import useMarvelService from "../../services/MarvelService";
@@ -81,7 +81,7 @@ const CharList = (props) => {
     itemRefs.current[id].focus();
   };
 
-  function renderItems(arr) {
+  const renderItems = (arr) => {
     const items = arr.map(({ name, thumbnail, id }, index) => {
       let imgStyle = { objectFit: "cover" };
 
@@ -119,7 +119,7 @@ const CharList = (props) => {
         <TransitionGroup component={null}>{items}</TransitionGroup>
       </ul>
     );
-  }
+  };
 
   // const cards = renderItems(charList);
 
@@ -129,13 +129,16 @@ const CharList = (props) => {
   // const spinner = loading && !newCharsLoading ? <Spinner /> : null;
   // убрали это условие, чтобы при !загрузке и !ошибке (следовательно при загрузке новых персонажей их состояние false) не было пустых карточек
   // const content = !(loading || error) ? cards : null;
+  const elements = useMemo(() => {
+    return setContent(process, () => renderItems(charList), newCharsLoading);
+  }, [process]);
 
   return (
     <div className="char__list">
       {/* {errorMessage}
       {spinner}
       {cards} */}
-      {setContent(process, () => renderItems(charList), newCharsLoading)}
+      {elements}
 
       <button
         disabled={newCharsLoading}
