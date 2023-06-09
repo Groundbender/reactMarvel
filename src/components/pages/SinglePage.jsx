@@ -5,12 +5,19 @@ import Spinner from "../spinner/spinner";
 import ErrorMessage from "../ErrorMessage/ErrorMessage";
 import useMarvelService from "../../services/MarvelService";
 import AppBanner from "../appBanner/AppBanner";
-
+import setContent from "../../utils/setContent";
 const SinglePage = ({ Component, dataType }) => {
   const { id } = useParams();
   const [data, setData] = useState(null);
-  const { loading, error, getComics, getCharacter, clearError } =
-    useMarvelService();
+  const {
+    loading,
+    error,
+    getComics,
+    getCharacter,
+    clearError,
+    process,
+    setProcess,
+  } = useMarvelService();
 
   useEffect(() => {
     updateData();
@@ -21,10 +28,18 @@ const SinglePage = ({ Component, dataType }) => {
 
     switch (dataType) {
       case "comics":
-        getComics(id).then(onDataLoaded);
+        getComics(id)
+          .then(onDataLoaded)
+          .then(() => setProcess("confirmed"));
         break;
       case "character":
-        getCharacter(id).then(onDataLoaded);
+        getCharacter(id)
+          .then(onDataLoaded)
+          .then(() => setProcess("confirmed"));
+        break;
+
+      default:
+        throw new Error("Unexpected process state ");
     }
   };
 
@@ -32,18 +47,19 @@ const SinglePage = ({ Component, dataType }) => {
     setData(data);
   };
 
-  const errorMessage = error ? <ErrorMessage /> : null;
-  const spinner = loading ? <Spinner /> : null;
-  const content = !(loading || error || !data) ? (
-    <Component data={data} />
-  ) : null;
+  // const errorMessage = error ? <ErrorMessage /> : null;
+  // const spinner = loading ? <Spinner /> : null;
+  // const content = !(loading || error || !data) ? (
+  //   <Component data={data} />
+  // ) : null;
 
   return (
     <>
       <AppBanner />
-      {errorMessage}
+      {/* {errorMessage}
       {spinner}
-      {content}
+      {content} */}
+      {setContent(process, Component, data)}
     </>
   );
 };

@@ -6,6 +6,22 @@ import Spinner from "../spinner/spinner";
 import ErrorMessage from "../ErrorMessage/ErrorMessage";
 
 import { CSSTransition, TransitionGroup } from "react-transition-group";
+
+const setContent = (process, Component, newCharsLoading) => {
+  switch (process) {
+    case "waiting":
+      return <Spinner />;
+    case "loading":
+      return newCharsLoading ? <Component /> : <Spinner />;
+    case "confirmed":
+      return <Component />;
+    case "error":
+      return <ErrorMessage />;
+    default:
+      throw new Error("Unexpected process state ");
+  }
+};
+
 const CharList = (props) => {
   const [charList, setCharlist] = useState([]);
 
@@ -14,7 +30,8 @@ const CharList = (props) => {
   const [offset, setOffset] = useState(210);
   const [charLimit, setCharLimit] = useState(false);
 
-  const { loading, error, getAllCharacters } = useMarvelService();
+  const { loading, error, getAllCharacters, process, setProcess } =
+    useMarvelService();
 
   useEffect(() => {
     // первичная загрузка куда передаем initial = true
@@ -27,7 +44,9 @@ const CharList = (props) => {
     // (при клике параметр initial не передаем и состояние загрузки будет true )
     initial ? setNewCharsLoading(false) : setNewCharsLoading(true);
 
-    getAllCharacters(offset).then(onCharListLoaded);
+    getAllCharacters(offset)
+      .then(onCharListLoaded)
+      .then(() => setProcess("confirmed"));
   };
 
   // const onCharListLoading = () => {
@@ -102,20 +121,21 @@ const CharList = (props) => {
     );
   }
 
-  const cards = renderItems(charList);
+  // const cards = renderItems(charList);
 
-  const errorMessage = error ? <ErrorMessage /> : null;
+  // const errorMessage = error ? <ErrorMessage /> : null;
   // переделал условие
   // если загрузка и !загрузка новых персонажей, тогда выводим spinner
-  const spinner = loading && !newCharsLoading ? <Spinner /> : null;
+  // const spinner = loading && !newCharsLoading ? <Spinner /> : null;
   // убрали это условие, чтобы при !загрузке и !ошибке (следовательно при загрузке новых персонажей их состояние false) не было пустых карточек
   // const content = !(loading || error) ? cards : null;
 
   return (
     <div className="char__list">
-      {errorMessage}
+      {/* {errorMessage}
       {spinner}
-      {cards}
+      {cards} */}
+      {setContent(process, () => renderItems(charList), newCharsLoading)}
 
       <button
         disabled={newCharsLoading}
